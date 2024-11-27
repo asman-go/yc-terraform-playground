@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  container-1:
+    image: cr.yandex/crpnqn6joccbivjbkb27/nginx-playground:1.4
+    container_name: container-1
+    restart: always
+    ports:
+      - 8081:80
+
+  container-2:
+    image: cr.yandex/crpnqn6joccbivjbkb27/nginx-playground:1.4
+    container_name: container-2
+    restart: always
+    ports:
+      - 8082:80
+
+# https://yandex.cloud/ru/docs/cos/concepts/coi-specifications#compose-spec-example
+# x-yc-disks:
+#   - device_name: compute-disk-data
+#     fs_type: ext4
+#     host_path: /mnt/configs/postgres
+#     partition: 1
+#   - device_name: compute-disk-data
+#     fs_type: ext4
+#     host_path: /mnt/data/postgres
+#     partition: 2
