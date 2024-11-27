@@ -7,6 +7,8 @@
 - Поднимать VM instance из docker-образа
 - Поднимать VM instance из docker-compose файла
 
+Сначала собираем контейнер (каталог container-example), затем запускаем наш терраформ:
+
 ```
 export YC_TOKEN="$(yc iam create-token --folder-id b1gr7b87128mt4levqg1)
 terraform init
