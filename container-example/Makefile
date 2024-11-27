@@ -1,5 +1,5 @@
 IMAGE_NAME = "nginx-playground"
-IMAGE_VERSION = "1.3"
+IMAGE_VERSION = "1.4"
 
 IMAGE_REGISTRY = "cr.yandex/crpnqn6joccbivjbkb27"
 

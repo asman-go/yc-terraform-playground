@@ -55,7 +55,7 @@ module "serverless-container" {
   source = "./serverless-container"
 
   service-account-id = yandex_iam_service_account.docker-image-creator.id
-  image-url          = "cr.yandex/crpnqn6joccbivjbkb27/nginx-playground:1.3"
+  image-url          = "cr.yandex/crpnqn6joccbivjbkb27/nginx-playground:1.4"
   network-name = yandex_vpc_network.asman-network.name
 
   providers = {
@@ -63,4 +63,21 @@ module "serverless-container" {
   }
 
   depends_on = [yandex_iam_service_account.docker-image-creator]
+}
+
+module "vm-instance-docker" {
+  source = "./vm-instance-docker"
+  zone = local.zone
+  network-name = yandex_vpc_network.asman-network.name
+  subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
+  service-account-id = yandex_iam_service_account.docker-image-creator.id
+
+  providers = {
+    yandex = yandex.with-project-info
+  }
+
+  depends_on = [
+    yandex_iam_service_account.docker-image-creator,
+    yandex_vpc_subnet.asman-subnet-a
+  ]
 }
