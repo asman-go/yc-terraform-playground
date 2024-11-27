@@ -1,0 +1,9 @@
+server {
+    listen ${PORT};
+    # listen [::]:80 ipv6only=on default_server;
+    
+    server_name localhost;
+    location /index.html {
+        return 200 'Hello World!';
+    }
+}
