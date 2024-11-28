@@ -82,53 +82,53 @@ resource "yandex_resourcemanager_folder_iam_binding" "image-puller" {
 
 # Modules
 
-module "postgres-cluster" {
-  source       = "./postgres"
-  network-name = yandex_vpc_network.asman-network.name
-  subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
-  zone         = local.zone
+# module "postgres-cluster" {
+#   source       = "./postgres"
+#   network-name = yandex_vpc_network.asman-network.name
+#   subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
+#   zone         = local.zone
 
-  providers = {
-    yandex = yandex.with-project-info
-  }
+#   providers = {
+#     yandex = yandex.with-project-info
+#   }
 
-  depends_on = [
-    yandex_vpc_network.asman-network,
-    yandex_vpc_subnet.asman-subnet-a
-  ]
-}
+#   depends_on = [
+#     yandex_vpc_network.asman-network,
+#     yandex_vpc_subnet.asman-subnet-a
+#   ]
+# }
 
-module "serverless-container" {
-  source = "./serverless-container"
+# module "serverless-container" {
+#   source = "./serverless-container"
 
-  service-account-id = yandex_iam_service_account.docker-image-creator.id
-  image-url          = "cr.yandex/crpnqn6joccbivjbkb27/nginx-playground:1.4"
-  network-name = yandex_vpc_network.asman-network.name
+#   service-account-id = yandex_iam_service_account.docker-image-creator.id
+#   image-url          = "cr.yandex/crpnqn6joccbivjbkb27/nginx-playground:1.4"
+#   network-name = yandex_vpc_network.asman-network.name
 
-  providers = {
-    yandex = yandex.with-project-info
-  }
+#   providers = {
+#     yandex = yandex.with-project-info
+#   }
 
-  depends_on = [yandex_iam_service_account.docker-image-creator]
-}
+#   depends_on = [yandex_iam_service_account.docker-image-creator]
+# }
 
-module "vm-instance-docker" {
-  source = "./vm-instance-docker"
-  zone = local.zone
-  # network-name = yandex_vpc_network.asman-network.name
-  subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
-  service-account-id = yandex_iam_service_account.docker-image-creator.id
-  security-group-id = yandex_vpc_security_group.playground-security-group.id
+# module "vm-instance-docker" {
+#   source = "./vm-instance-docker"
+#   zone = local.zone
+#   # network-name = yandex_vpc_network.asman-network.name
+#   subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
+#   service-account-id = yandex_iam_service_account.docker-image-creator.id
+#   security-group-id = yandex_vpc_security_group.playground-security-group.id
 
-  providers = {
-    yandex = yandex.with-project-info
-  }
+#   providers = {
+#     yandex = yandex.with-project-info
+#   }
 
-  depends_on = [
-    yandex_iam_service_account.docker-image-creator,
-    yandex_vpc_subnet.asman-subnet-a
-  ]
-}
+#   depends_on = [
+#     yandex_iam_service_account.docker-image-creator,
+#     yandex_vpc_subnet.asman-subnet-a
+#   ]
+# }
 
 module "vm-instance-docker-compose" {
   source = "./vm-instance-docker-compose"
@@ -136,6 +136,7 @@ module "vm-instance-docker-compose" {
   subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
   service-account-id = yandex_iam_service_account.docker-image-creator.id
   security-group-id = yandex_vpc_security_group.playground-security-group.id
+  domain-zone = "ikemurami.com"
 
   providers = {
     yandex = yandex.with-project-info
@@ -145,4 +146,12 @@ module "vm-instance-docker-compose" {
     yandex_iam_service_account.docker-image-creator,
     yandex_vpc_subnet.asman-subnet-a
   ]
+}
+
+output "external_ip" {
+  value = module.vm-instance-docker-compose.external_ip
+}
+
+output "external_domain" {
+  value = module.vm-instance-docker-compose.external_domain
 }

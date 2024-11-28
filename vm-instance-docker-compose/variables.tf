@@ -21,3 +21,7 @@ variable "security-group-id" {
 variable "subnet-name" {
   description = "VPC subnet name"
 }
+
+variable "domain-zone" {
+  description = "Domain zone"
+}

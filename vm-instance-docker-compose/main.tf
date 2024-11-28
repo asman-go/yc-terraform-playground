@@ -1,3 +1,7 @@
+locals {
+  subdomain-name = "vmpg"
+}
+
 data "yandex_compute_image" "container-optimized-image" {
   family = "container-optimized-image"
 }
@@ -6,18 +10,25 @@ data "yandex_vpc_subnet" "playground-subnet" {
   name = var.subnet-name
 }
 
+resource "yandex_vpc_address" "addr" {
+  name = "instance-adress"
+  external_ipv4_address {
+    zone_id = var.zone
+  }
+}
+
 resource "yandex_compute_instance" "instance" {
   name = "instance-playground-with-docker-compose"
 
   platform_id = "standard-v3" # Intel Ice Lake, https://yandex.cloud/ru/docs/compute/concepts/vm-platforms
   zone        = var.zone
 
-  allow_stopping_for_update = true  # Что бы можно было менять resources поле через terraform
-  service_account_id = var.service-account-id
+  allow_stopping_for_update = true # Что бы можно было менять resources поле через terraform
+  service_account_id        = var.service-account-id
   resources {
-    core_fraction = 50  # 50%
-    cores  = 2
-    memory = 2
+    core_fraction = 50 # 50%
+    cores         = 2
+    memory        = 2
   }
 
   boot_disk {
@@ -28,9 +39,13 @@ resource "yandex_compute_instance" "instance" {
 
   network_interface {
     subnet_id = data.yandex_vpc_subnet.playground-subnet.id
+    # Управляем, какие порты открываем
     security_group_ids = [
       var.security-group-id
     ]
+    # Если хотим открыть наружу (дать публичный адрес)
+    nat            = true
+    nat_ip_address = yandex_vpc_address.addr.external_ipv4_address[0].address
   }
 
   metadata = {
@@ -40,6 +55,29 @@ resource "yandex_compute_instance" "instance" {
   }
 }
 
+# Создание зоны DNS
+# https://yandex.cloud/ru/docs/compute/tutorials/bind-domain-vm/terraform
+resource "yandex_dns_zone" "domain-zone" {
+  name        = "ikemurami-domain-zone"
+  description = "Create domain zone"
+
+  zone   = "${var.domain-zone}."
+  public = true
+}
+
+# Создание ресурсной записи типа А
+resource "yandex_dns_recordset" "record" {
+  zone_id = yandex_dns_zone.domain-zone.id
+  name    = "${local.subdomain-name}.${var.domain-zone}."
+  type    = "A"
+  ttl     = 200
+  data    = ["${yandex_compute_instance.instance.network_interface.0.nat_ip_address}"]
+}
+
 output "external_ip" {
   value = yandex_compute_instance.instance.network_interface.0.nat_ip_address
+}
+
+output "external_domain" {
+  value = "${local.subdomain-name}.${var.domain-zone}"
 }
