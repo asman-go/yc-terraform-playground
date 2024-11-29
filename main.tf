@@ -19,48 +19,48 @@ resource "yandex_vpc_subnet" "asman-subnet-a" {
 # Security group
 
 resource "yandex_vpc_security_group" "playground-security-group" {
-    # https://yandex.cloud/ru/docs/vpc/concepts/security-groups
-  name = "plauground-security-group"
+  # https://yandex.cloud/ru/docs/vpc/concepts/security-groups
+  name       = "plauground-security-group"
   network_id = yandex_vpc_network.asman-network.id
   ingress {
-    description = "Allow SSH"
-    protocol = "ANY"
-    port = 22
+    description    = "Allow SSH"
+    protocol       = "ANY"
+    port           = 22
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description = "Allow HTTP"
-    protocol = "TCP"
-    port = 80
+    description    = "Allow HTTP"
+    protocol       = "TCP"
+    port           = 80
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description = "Allow HTTP"
-    protocol = "TCP"
-    port = 8081
+    description    = "Allow HTTP"
+    protocol       = "TCP"
+    port           = 8081
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description = "Allow HTTP"
-    protocol = "TCP"
-    port = 8082
+    description    = "Allow HTTP"
+    protocol       = "TCP"
+    port           = 8082
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description = "Allow HTTPS"
-    protocol = "TCP"
-    port = 443
+    description    = "Allow HTTPS"
+    protocol       = "TCP"
+    port           = 443
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
-    description       = "Permit ANY"
-    protocol          = "ANY"
-    v4_cidr_blocks    = ["0.0.0.0/0"]
+    description    = "Permit ANY"
+    protocol       = "ANY"
+    v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
-  provider       = yandex.with-project-info
+  provider = yandex.with-project-info
 
-  depends_on = [ yandex_vpc_network.asman-network ]
+  depends_on = [yandex_vpc_network.asman-network]
 }
 
 # IAM
@@ -130,28 +130,52 @@ resource "yandex_resourcemanager_folder_iam_binding" "image-puller" {
 #   ]
 # }
 
-module "vm-instance-docker-compose" {
-  source = "./vm-instance-docker-compose"
-  zone = local.zone
-  subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
-  service-account-id = yandex_iam_service_account.docker-image-creator.id
-  security-group-id = yandex_vpc_security_group.playground-security-group.id
+# module "vm-instance-docker-compose" {
+#   source = "./vm-instance-docker-compose"
+#   zone = local.zone
+#   subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
+#   service-account-id = yandex_iam_service_account.docker-image-creator.id
+#   security-group-id = yandex_vpc_security_group.playground-security-group.id
+#   domain-zone = "ikemurami.com"
+
+#   providers = {
+#     yandex = yandex.with-project-info
+#   }
+
+#   depends_on = [
+#     yandex_iam_service_account.docker-image-creator,
+#     yandex_vpc_subnet.asman-subnet-a
+#   ]
+# }
+
+# output "external_ip" {
+#   value = module.vm-instance-docker-compose.external_ip
+# }
+
+# output "external_domain" {
+#   value = module.vm-instance-docker-compose.external_domain
+# }
+
+module "certificate" {
+  source = "./certificate"
+
+  domain = "crt.ikemurami.com"
   domain-zone = "ikemurami.com"
 
   providers = {
     yandex = yandex.with-project-info
   }
-
-  depends_on = [
-    yandex_iam_service_account.docker-image-creator,
-    yandex_vpc_subnet.asman-subnet-a
-  ]
 }
 
-output "external_ip" {
-  value = module.vm-instance-docker-compose.external_ip
+output "cert-id" {
+  value = module.certificate.cert_id
 }
 
-output "external_domain" {
-  value = module.vm-instance-docker-compose.external_domain
-}
+# TODO
+
+# resource "yandex_dns_recordset" "rs2" {
+#   count = yandex_cm_certificate.cert-domain.managed[0].challenge_count
+#   zone_id = "example-zone-id"
+#   name = yandex_cm_certificate.cert-domain.name
+#   type = yandex_cm_certificate.cert-domain.
+# }

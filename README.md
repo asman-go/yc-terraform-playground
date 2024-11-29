@@ -6,6 +6,10 @@
 - Поднимать serverless container из образа
 - Поднимать VM instance из docker-образа
 - Поднимать VM instance из docker-compose файла
+- [-] Поднимать ALB: https://yandex.cloud/ru/docs/certificate-manager/tutorials/tls-termination/terraform
+- Подключать публичный IP
+- Подключать домен
+- Настраивать сертификаты: https://yandex.cloud/en/docs/certificate-manager/tf-ref
 
 Сначала собираем контейнер (каталог container-example), затем запускаем наш терраформ:
 
