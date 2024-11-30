@@ -1,9 +1,0 @@
-#cloud-config
-ssh_pwauth: no
-users:
-  - name: yc-user
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    shell: /bin/bash
-    ssh_authorized_keys:
-      # https://yandex.cloud/ru/docs/compute/operations/vm-connect/ssh#creating-ssh-keys
-      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICpLry2FPuUrhqh57phxh0St9/6f+KRZP0WKSAsDdv9R ikemurami@ikemurami-osx"

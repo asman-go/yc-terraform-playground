@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
+    volumes:
+      - /etc/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - /home/${DEFAULT_USER}/data-disk/${DEVICE_NAME}:/var/lib/postgresql/data
+
+  # mongo:
+  #   image: mongo
+  #   restart: always
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: user
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+
+  pgadmin:
+    image: dpage/pgadmin4
+    user: root
+    environment:
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+        PGADMIN_LISTEN_PORT: 80
+        PGADMIN_CONFIG_SERVER_MODE: 'True'
+    ports:
+      - 80:80
+    volumes:
+      - /home/${DEFAULT_USER}/data-disk/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+x-yc-disks:
+  - device_name: ${DEVICE_NAME}
+    fs_type: ext4
+    host_path: /home/${DEFAULT_USER}/data-disk

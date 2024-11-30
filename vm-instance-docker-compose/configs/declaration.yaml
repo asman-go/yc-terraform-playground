@@ -1,8 +1,0 @@
-# k8s spec
-spec:
-  containers:
-  - image: cr.yandex/crpnqn6joccbivjbkb27/nginx-playground:1.4
-    securityContext:
-      privileged: false
-    stdin: false
-    tty: false

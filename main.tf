@@ -35,6 +35,12 @@ resource "yandex_vpc_security_group" "playground-security-group" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
+    description    = "Allow Postgres"
+    protocol       = "TCP"
+    port           = 5432
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
     description    = "Allow HTTP"
     protocol       = "TCP"
     port           = 8081
@@ -52,6 +58,7 @@ resource "yandex_vpc_security_group" "playground-security-group" {
     port           = 443
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
+
   egress {
     description    = "Permit ANY"
     protocol       = "ANY"
@@ -130,46 +137,58 @@ resource "yandex_resourcemanager_folder_iam_binding" "image-puller" {
 #   ]
 # }
 
-# module "vm-instance-docker-compose" {
-#   source = "./vm-instance-docker-compose"
-#   zone = local.zone
-#   subnet-name  = yandex_vpc_subnet.asman-subnet-a.name
-#   service-account-id = yandex_iam_service_account.docker-image-creator.id
-#   security-group-id = yandex_vpc_security_group.playground-security-group.id
+module "vm-instance-docker-compose" {
+  source             = "./vm-instance-docker-compose"
+  zone               = local.zone
+  subnet-name        = yandex_vpc_subnet.asman-subnet-a.name
+  service-account-id = yandex_iam_service_account.docker-image-creator.id
+  security-group-id  = yandex_vpc_security_group.playground-security-group.id
+  domain-zone        = "mydomain.com"
+
+  ssh-public-key-path = "${path.module}/ycvm.pub"
+  compose-type        = "postgres" # "nginx"
+
+  providers = {
+    yandex = yandex.with-project-info
+  }
+
+  depends_on = [
+    yandex_iam_service_account.docker-image-creator,
+    yandex_vpc_subnet.asman-subnet-a
+  ]
+}
+
+output "external_ip" {
+  value = module.vm-instance-docker-compose.external_ip
+}
+
+output "external_domain" {
+  value = module.vm-instance-docker-compose.external_domain
+}
+
+# module "certificate" {
+#   source = "./certificate"
+
+#   domain      = "crt.ikemurami.com"
 #   domain-zone = "ikemurami.com"
 
 #   providers = {
 #     yandex = yandex.with-project-info
 #   }
-
-#   depends_on = [
-#     yandex_iam_service_account.docker-image-creator,
-#     yandex_vpc_subnet.asman-subnet-a
-#   ]
 # }
 
-# output "external_ip" {
-#   value = module.vm-instance-docker-compose.external_ip
+# output "cert-id" {
+#   value = module.certificate.cert_id
 # }
 
-# output "external_domain" {
-#   value = module.vm-instance-docker-compose.external_domain
+# output "private_key" {
+#   value     = module.certificate.certificate.private_key
+#   sensitive = true
 # }
 
-module "certificate" {
-  source = "./certificate"
-
-  domain = "crt.ikemurami.com"
-  domain-zone = "ikemurami.com"
-
-  providers = {
-    yandex = yandex.with-project-info
-  }
-}
-
-output "cert-id" {
-  value = module.certificate.cert_id
-}
+# output "certificates-chain" {
+#   value = module.certificate.certificate.certificates
+# }
 
 # TODO
 

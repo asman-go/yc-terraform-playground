@@ -32,7 +32,19 @@ data "yandex_cm_certificate" "cert-domain" {
     wait_validation = true
 }
 
+data "yandex_cm_certificate_content" "cert-domain-content" {
+    depends_on = [ data.yandex_cm_certificate.cert-domain ]
+    certificate_id = yandex_cm_certificate.cert-domain.id
+    wait_validation = true
+}
+
 output "cert_id" {
     description = "Certificate ID"
     value = data.yandex_cm_certificate.cert-domain.id
+}
+
+output "certificate" {
+    description = "Certificate"
+    value = data.yandex_cm_certificate_content.cert-domain-content
+    # value = data.yandex_cm_certificate.cert-domain.
 }

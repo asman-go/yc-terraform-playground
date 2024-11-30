@@ -1,3 +1,9 @@
+variable "compose-type" {
+  description = "Что разворачиваем"
+  type        = string
+  default     = "nginx" # nginx | postgres
+}
+
 variable "zone" {
   description = "DC zone"
 }
@@ -24,4 +30,8 @@ variable "subnet-name" {
 
 variable "domain-zone" {
   description = "Domain zone"
+}
+
+variable "ssh-public-key-path" {
+  description = "SSH key host path"
 }

@@ -1,0 +1,31 @@
+#cloud-config
+# Эта штука называется cloud-init: позволяет инициализировать вирутальную машину при запуске (например, создать необходимые файлы)
+# https://cloudinit.readthedocs.io/en/latest/
+# https://yandex.cloud/en/docs/compute/concepts/vm-metadata
+
+# Basic system setup
+# hostname: example-host
+# fqdn: example-host.example.com
+
+# User setup configuration
+ssh_pwauth: no
+users:
+  - name: ${DEFAULT_USER}
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      # https://yandex.cloud/ru/docs/compute/operations/vm-connect/ssh#creating-ssh-keys
+      - ${SSH_PUBLIC_KEY}
+
+# Commands to run at the end of the cloud-init process
+runcmd:
+  - echo 'Hello, World!' > /etc/hello-world.txt
+  # - systemctl restart nginx
+
+write_files:
+  - path: /etc/init.sql
+    content: |
+      ${POSTGRES_INIT_SQL_QUERY}
+
+# Final message, shown after cloud-init completes
+# final_message: "The system is up, after $UPTIME seconds"
