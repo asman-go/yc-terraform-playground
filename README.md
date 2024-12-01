@@ -10,6 +10,7 @@
 - Подключать публичный IP
 - Подключать домен
 - Настраивать сертификаты: https://yandex.cloud/en/docs/certificate-manager/tf-ref
+- Собираем логи с VM instance с docker-compose: https://yandex.cloud/ru/docs/logging/tutorials/coi-fluent-bit-logging
 
 Сначала собираем контейнер (каталог container-example), затем запускаем наш терраформ:
 
